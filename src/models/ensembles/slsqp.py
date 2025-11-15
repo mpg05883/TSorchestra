@@ -91,14 +91,16 @@ class SLSQPEnsemble(Forecaster):
         self.weights_df = pd.DataFrame(columns=self.model_aliases)
 
     def format_alias(self) -> str:
+        ensemble_name = self.__class__.__name__
         num_models_str = f"{len(self.tcf.models)}-models"
+        aliases_str = "-".join(self.model_aliases)
         num_windows_str = f"{self.n_windows}-windows"
         metric_str = f"opt-{self.metric}"
-        return f"SLSQPEnsemble_{num_models_str}_{metric_str}_{num_windows_str}"
+        return f"{ensemble_name}_{num_models_str}_{aliases_str}_{metric_str}_{num_windows_str}"
 
     @property
     def model_aliases(self) -> list[str]:
-        return [m.alias for m in self.tcf.models]
+        return sorted([m.alias.lower() for m in self.tcf.models])
 
     def _optimize_weights(
         self,

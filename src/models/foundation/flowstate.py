@@ -8,8 +8,8 @@ from tqdm import tqdm
 from tsfm_public import FlowStateForPrediction
 from tsfm_public.models.flowstate.utils.utils import get_fixed_factor
 
-from ..utils.forecaster import Forecaster, QuantileConverter
-from .utils import TimeSeriesDataset
+from src.models.common.forecaster import Forecaster, QuantileConverter
+from src.models.foundation.utils import TimeSeriesDataset
 
 
 class FlowState(Forecaster):
@@ -168,8 +168,8 @@ class FlowState(Forecaster):
         ).prediction_outputs
         fcst = fcst.squeeze(-1).transpose(-1, -2)  # now shape is (batch, h, quantiles)
         fcst_mean = fcst[..., supported_quantiles.index(0.5)].squeeze()
-        fcst_mean_np = fcst_mean.detach().numpy()
-        fcst_quantiles_np = fcst.detach().numpy() if quantiles is not None else None
+        fcst_mean_np = fcst_mean.cpu().detach().numpy()
+        fcst_quantiles_np = fcst.cpu().detach().numpy() if quantiles is not None else None
         return fcst_mean_np, fcst_quantiles_np
 
     def _predict(

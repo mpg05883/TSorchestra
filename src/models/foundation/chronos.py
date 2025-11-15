@@ -11,8 +11,8 @@ from chronos import (
 )
 from tqdm import tqdm
 
-from ..utils.forecaster import Forecaster, QuantileConverter
-from .utils import TimeSeriesDataset
+from src.models.common.forecaster import Forecaster, QuantileConverter
+from src.models.foundation.utils import TimeSeriesDataset
 
 
 class Chronos(Forecaster):
@@ -25,7 +25,7 @@ class Chronos(Forecaster):
 
     def __init__(
         self,
-        repo_id: str = "amazon/chronos-t5-large",
+        repo_id: str = "amazon/chronos-2",
         batch_size: int = 16,
         alias: str = "Chronos",
     ):

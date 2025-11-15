@@ -9,11 +9,11 @@
 #SBATCH --constraint="scratch"
 #SBATCH --gpus-per-node=1
 #SBATCH --gpu-bind=closest
-#SBATCH --account=  # TODO: Enter your SLURM account 
+#SBATCH --account=bdem-delta-gpu
 #SBATCH --time=24:00:00
 #SBATCH --output=output/logs/%x/out/%A/%a.out
 #SBATCH --error=output/logs/%x/err/%A/%a.err
-#SBATCH --mail-user=  # TODO: Enter your email address 
+#SBATCH --mail-user=mpgee@usc.edu
 #SBATCH --mail-type=BEGIN,END,FAIL
 
 mkdir -p ./output/logs
@@ -21,9 +21,10 @@ source ./cli/utils.sh
 activate_conda_env
 log_info "Starting $(get_slurm_message)"
 
-# Default to the M4 Hourly dataset (short-term) if not using SLURM
+# Default dataset (short-term) to load if not using SLURM
+ETT1_D_TASK_ID=22
 M4_HOURLY_TASK_ID=38  
-DEFAULT_TASK_ID=$M4_HOURLY_TASK_ID
+DEFAULT_TASK_ID=$ETT1_D_TASK_ID
 
 # Ensure SLURM_ARRAY_TASK_ID is set
 SLURM_ARRAY_TASK_ID=${SLURM_ARRAY_TASK_ID:-$DEFAULT_TASK_ID}

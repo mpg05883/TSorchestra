@@ -8,7 +8,7 @@ from src.data.dataset import Dataset
 from src.data.evaluator import Evaluator
 from src.models.common.gluonts_predictor import GluonTSPredictor
 from src.models.ensembles.slsqp import SLSQPEnsemble
-from src.models.foundation import Moirai, Sundial, Toto, TimesFM
+from src.models.foundation import Moirai, Sundial, Toto, TimesFM, Chronos, FlowState
 
 
 @hydra.main(version_base=None, config_path="conf", config_name="config")
@@ -19,10 +19,12 @@ def main(cfg: DictConfig) -> None:
 
     # Load models
     models = [
-        Moirai(batch_size=cfg.batch_size),
-        Sundial(batch_size=cfg.batch_size),
-        Toto(batch_size=cfg.batch_size),
+        # Moirai(batch_size=cfg.batch_size),
+        # Sundial(batch_size=cfg.batch_size),
+        # Toto(batch_size=cfg.batch_size),
         TimesFM(batch_size=cfg.batch_size),
+        Chronos(batch_size=cfg.batch_size),
+        FlowState(batch_size=cfg.batch_size),
     ]
 
     # Ensemble the models
@@ -38,8 +40,8 @@ def main(cfg: DictConfig) -> None:
     )
 
     # Load list of dataset cfgs and use SLURM_ARRAY_TASK_ID to index the list.
-    # Defaults to 38, which is the M4 Hourly dataset (short-term).
-    cfg.data = cfg.data[int(os.environ.get("SLURM_ARRAY_TASK_ID", 38))]
+    # Defaults to 22, which is the Ett1 daily dataset (short-term).
+    cfg.data = cfg.data[int(os.environ.get("SLURM_ARRAY_TASK_ID", 22))]
     dataset_name, term = cfg.data.name, cfg.data.term
 
     logging.info(f"Loading dataset: {dataset_name} ({term}-term)")
