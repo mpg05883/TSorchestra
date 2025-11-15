@@ -4,6 +4,8 @@ from .tabpfn import TabPFN
 from .timesfm import TimesFM
 from .tirex import TiRex
 from .toto import Toto
+from .chronos import Chronos
+from .flowstate import FlowState
 
 __all__ = [
     "Moirai",
@@ -12,4 +14,6 @@ __all__ = [
     "TimesFM",
     "TiRex",
     "Toto",
+    "Chronos",
+    "FlowState",
 ]

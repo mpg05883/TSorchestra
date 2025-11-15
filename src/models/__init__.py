@@ -12,6 +12,8 @@ from .foundation import (
     TimesFM,
     TiRex,
     Toto,
+    Chronos,
+    FlowState,    
 )
 
 __all__ = [
@@ -26,4 +28,6 @@ __all__ = [
     "TimesFM",
     "TiRex",
     "Toto",
+    "Chronos",
+    "FlowState",
 ]
