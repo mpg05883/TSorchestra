@@ -20,7 +20,7 @@ class Evaluator:
     def __init__(
         self,
         dataset: Dataset,
-        batch_size: int,
+        batch_size: int=512,
         verbose: bool = True,
     ) -> None:
         """

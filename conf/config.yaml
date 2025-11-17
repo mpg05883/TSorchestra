@@ -1,6 +1,9 @@
 defaults:
-  - logging: timestamp
+  - logging: info
   - data: dataset # List of dataset name-term pairs 
+  - model@models.0: timesfm
+  - model@models.1: chronos
+  - model@models.2: flowstate
   - imputation: dummy_value
   - _self_
 
@@ -17,11 +20,14 @@ verbose: true
 # Set floating point precision for PyTorch
 precision: highest
 
-# Batch size for evaluation
-batch_size: 128
+# Batch size to use for model forward passes
+model_batch_size: 64
+
+# Batch size to use when processing datasets
+data_batch_size: 1024
 
 # Ensemble configuration
 ensemble:
   metric: mae
   n_windows: 1
-  batch_size: $batch_size
+  batch_size: $data_batch_size

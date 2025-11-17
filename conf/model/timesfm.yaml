@@ -1,0 +1,6 @@
+# @package _group_
+_target_: src.models.foundation.timesfm.TimesFM
+repo_id: "google/timesfm-2.5-200m-pytorch"
+context_length: 2048
+batch_size: 64
+alias: "TimesFM"

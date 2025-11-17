@@ -1,3 +1,0 @@
-_target_: src.models.foundation.timesfm.TimesFM
-batch_size: 1024
-alias: "timesfm_2.5_200m"

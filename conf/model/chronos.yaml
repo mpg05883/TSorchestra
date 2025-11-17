@@ -1,0 +1,5 @@
+# @package _group_
+_target_: src.models.foundation.chronos.Chronos
+repo_id: "amazon/chronos-2"
+batch_size: 16
+alias: "Chronos"

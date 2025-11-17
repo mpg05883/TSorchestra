@@ -1,0 +1,7 @@
+# @package _group_
+_target_: src.models.foundation.flowstate.FlowState
+repo_id: "ibm-research/flowstate"
+scale_factor: null
+context_length: 2048
+batch_size: 1024
+alias: "FlowState"
