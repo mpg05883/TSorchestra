@@ -81,6 +81,7 @@ class SLSQPEnsemble(Forecaster):
         metric: MetricName = "mse",
         batch_size: int = 128,
         n_windows: int = 1,
+        verbose: bool = True,
     ) -> None:
         self.tcf = TimeCopilotForecaster(models=models, fallback_model=None)
         self.opt_result_: SLSQPOptimizationResult | None = None
@@ -89,18 +90,26 @@ class SLSQPEnsemble(Forecaster):
         self.n_windows = n_windows
         self.alias = self.format_alias()
         self.weights_df = pd.DataFrame(columns=self.model_aliases)
+        
+        if verbose:
+            logging.info(
+                f"[{self.__class__.__name__}] Initializing SLSQPEnsemble with "
+                f"{len(models)} models ({', '.join(self.model_aliases)}), "
+                f"metric={self.metric}, "
+                f"n_windows={self.n_windows}"
+            )
 
     def format_alias(self) -> str:
         ensemble_name = self.__class__.__name__
         num_models_str = f"{len(self.tcf.models)}-models"
-        aliases_str = "-".join(self.model_aliases)
+        aliases_str = "-".join(self.model_aliases).lower()
         num_windows_str = f"{self.n_windows}-windows"
         metric_str = f"opt-{self.metric}"
         return f"{ensemble_name}_{num_models_str}_{aliases_str}_{metric_str}_{num_windows_str}"
 
     @property
     def model_aliases(self) -> list[str]:
-        return sorted([m.alias.lower() for m in self.tcf.models])
+        return sorted([model.alias for model in self.tcf.models])
 
     def _optimize_weights(
         self,

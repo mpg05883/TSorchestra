@@ -1,10 +1,11 @@
 defaults:
   - logging: info
-  - data: dataset # List of dataset name-term pairs 
   - model@models.0: timesfm
   - model@models.1: chronos
   - model@models.2: flowstate
+  - ensemble: slsqp
   - imputation: dummy_value
+  - data: dataset # List of dataset name-term pairs 
   - _self_
 
 # Redirect hydra output
@@ -17,17 +18,14 @@ seed: 42
 workers: true
 verbose: true
 
-# Set floating point precision for PyTorch
-precision: highest
-
 # Batch size to use for model forward passes
 model_batch_size: 64
+
+# Metric to optimize when computing ensemble weights during cross-validation
+metric: mae
 
 # Batch size to use when processing datasets
 data_batch_size: 1024
 
-# Ensemble configuration
-ensemble:
-  metric: mae
-  n_windows: 1
-  batch_size: $data_batch_size
+# Number of cross-validation windows to use when computing ensemble weights
+n_windows: 1
