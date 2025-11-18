@@ -33,13 +33,14 @@ def main(cfg: DictConfig) -> None:
         verbose=cfg.verbose,
     )
 
-    # Prepare ensemble for evaluation
+    # Create GluonTS-compatible predictor for evaluation
     predictor = GluonTSPredictor(forecaster)
 
     # Load list of dataset cfgs and use SLURM_ARRAY_TASK_ID to index the list.
     # Defaults to 22, which is the Ett1 daily dataset (short-term).
     cfg.data = cfg.data[int(os.environ.get("SLURM_ARRAY_TASK_ID", 22))]
     dataset_name, term = cfg.data.name, cfg.data.term    
+    
     logging.info(f"Loading dataset: {dataset_name} ({term}-term)")
     dataset = Dataset(name=dataset_name, term=term)
 

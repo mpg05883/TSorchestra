@@ -25,11 +25,13 @@ activate_conda_env
 
 log_info "Starting $(get_slurm_message)"
 
-# Default to the Ett1 daily dataset (short-term) if not using SLURM
+# Set default dataset to load if not using SLURM
 ETT1_D_TASK_ID=22
 M4_HOURLY_TASK_ID=38  
 DEFAULT_TASK_ID=$ETT1_D_TASK_ID
-DEFAULT_TASK_ID=2  # TODO: Remove after debugging
+DEFAULT_TASK_ID=7  # Remove after debugging
+
+# Ensure SLURM_ARRAY_TASK_ID is set 
 SLURM_ARRAY_TASK_ID=${SLURM_ARRAY_TASK_ID:-$DEFAULT_TASK_ID}
 export SLURM_ARRAY_TASK_ID
 
