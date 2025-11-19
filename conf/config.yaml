@@ -30,4 +30,4 @@ n_windows: 1
 run_mode: sbatch
 
 # Index to start on in list of datasets if run_mode != sbatch
-start_index: 0
+start_idx: 0

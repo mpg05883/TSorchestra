@@ -5,11 +5,13 @@ import hydra
 from hydra.utils import instantiate
 from omegaconf import DictConfig, OmegaConf
 from pytorch_lightning import seed_everything
+from pytorch_lightning.utilities import rank_zero_info
 from tqdm import tqdm
 
 from src.data.dataset import Dataset
 from src.data.evaluator import Evaluator
 from src.models.common.gluonts_predictor import GluonTSPredictor
+from src.utils.enums import RunMode
 
 
 @hydra.main(version_base=None, config_path="conf", config_name="config")
@@ -18,20 +20,26 @@ def main(cfg: DictConfig) -> None:
     seed_everything(**cfg.seed)
     logging.basicConfig(**cfg.logging)
     logging.debug(f"Config:\n{OmegaConf.to_yaml(cfg)}")
+    
+    # Determine dataset(s) to evaluate based on run mode
+    if cfg.run_mode == RunMode.SBATCH:
+        task_id = int(os.environ.get("SLURM_ARRAY_TASK_ID")) % len(cfg.data)
+        start_idx, end_idx = task_id, task_id + 1
+    else:
+        start_idx, end_idx = cfg.start_idx, None
 
-    # Use SLURM_ARRAY_TASK_ID to index list of dataset name-term pairs
-    if (task_id := os.environ.get("SLURM_ARRAY_TASK_ID")) is not None:
-        # Use modulo division in case number of runs exceeds number of datasets
-        task_id = int(task_id) % len(cfg.data)
-        cfg.data = cfg.data[task_id : task_id + 1]
+    datasets = cfg.data[start_idx:end_idx]
 
     kwargs = {
         "desc": "Running evaluation",
-        "total": len(cfg.data),
+        "total": len(datasets),
         "unit": "dataset",
+        "disable": len(datasets) == 1,
     }
 
-    for data in tqdm(cfg.data, **kwargs):
+    for data in tqdm(datasets, **kwargs):        
+        rank_zero_info("-" * 160)
+        
         # Load models
         models = [
             instantiate(model_cfg, batch_size=cfg.model_batch_size)
@@ -59,7 +67,6 @@ def main(cfg: DictConfig) -> None:
 
         # Print ensemble weights for each cross-validation window
         forecaster.print_weights()
-
 
 if __name__ == "__main__":
     main()

@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# Define constants
-readonly ETT1_D_TASK_ID=22
-readonly M4_HOURLY_TASK_ID=38  
+# Define constants 
+readonly ETT1_D_TASK_ID=22  # If using "all" data config
+readonly M4_HOURLY_TASK_ID=38  # If using "all" data config
 
 # Returns the current timestamp (Pacific time) formatted as:
 # month day year, hour:minute:second AM/PM.

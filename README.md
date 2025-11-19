@@ -8,6 +8,8 @@ Time Series Orchestra (TSorchestra) is a novel ensemble framework designed for z
 
 1. Create a new conda environment named `tso` from our .yml file:
 
+# TODO: Update conda env
+
 ```bash
 conda env create -f environment.yml
 ```
@@ -29,6 +31,8 @@ echo "GIFT_EVAL=data" >> .env
 ---
 
 Run our evaluation script to reproduce our results:
+
+# TODO: Update instructions to run script
 
 ```bash
 chmod +x ./cli/eval.sh

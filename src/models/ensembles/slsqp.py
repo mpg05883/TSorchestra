@@ -309,8 +309,6 @@ class SLSQPEnsemble(Forecaster):
         }
         cv_df = self.tcf._call_models(**kwargs)
 
-        print(f"DEBUG: CV dataframe shape: {cv_df.shape}")
-
         model_cols = [m.alias for m in self.tcf.models]
 
         # Use Toto's median forecasts
@@ -400,10 +398,7 @@ class SLSQPEnsemble(Forecaster):
             if y_clean.size == 0:
                 raise RuntimeError("No valid rows available for weight optimization.")
 
-            print(
-                f"DEBUG: MASE optimization - y_clean.shape: "
-                f"{y_clean.shape}, X_clean.shape: {X_clean.shape}"
-            )
+      
             opt_res = self._optimize_weights(y_clean, X_clean, self.metric)
 
         else:

@@ -37,8 +37,8 @@ model_batch_size=64
 data_batch_size=1024
 metric="mae"
 n_windows=1
-run_mode="sbatch"
-start_index=0
+run_mode="int"
+start_idx=22
 
 if python -m pipeline.eval -cp ../conf \
     seed="${seed}" \
@@ -54,7 +54,7 @@ if python -m pipeline.eval -cp ../conf \
     metric="${metric}" \
     n_windows="${n_windows}" \
     run_mode="${run_mode}" \
-    start_index="${start_index}"; then
+    start_idx="${start_idx}"; then
 
     log_info "Successfully finished $(get_slurm_message)!"
     log_error "No errors!"
