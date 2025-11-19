@@ -38,7 +38,7 @@ def main(cfg: DictConfig) -> None:
     }
 
     for data in tqdm(datasets, **kwargs):        
-        rank_zero_info("-" * 160)
+        rank_zero_info(f"\n{'-' * 160}")
         
         # Load models
         models = [

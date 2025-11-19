@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=chronos_additional_models_eval  # ! Change job name as you add more models
-#SBATCH --array=0-14  # ! Change array range based on number of datasets
+#SBATCH --array=0-54%3  # ! Change array range based on number of datasets
 #SBATCH --partition=gpuA100x4     
 #SBATCH --mem=100G     
 #SBATCH --nodes=1
@@ -10,7 +10,7 @@
 #SBATCH --gpus-per-node=1
 #SBATCH --gpu-bind=closest
 #SBATCH --account=bdem-delta-gpu
-#SBATCH --time=1:00:00
+#SBATCH --time=2:00:00
 #SBATCH --output=output/logs/%x/out/%A/%a.out
 #SBATCH --error=output/logs/%x/err/%A/%a.err
 #SBATCH --mail-user=mpgee@usc.edu
@@ -29,7 +29,7 @@ export SLURM_ARRAY_TASK_ID
 
 # Define run configs
 data="healthcare"
-run_mode="interactive"
+run_mode="i"
 start_idx=0
 
 if python -m pipeline.eval -cp ../conf \
@@ -37,7 +37,8 @@ if python -m pipeline.eval -cp ../conf \
     model@models.0=moirai \
     model@models.1=sundial \
     model@models.2=toto \
-    +model@models.3=chronos \
+    +model@models.3=timesfm \
+    +model@models.4=chronos \
     run_mode="${run_mode}" \
     start_idx="${start_idx}"; then
 

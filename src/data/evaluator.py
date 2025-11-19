@@ -1,5 +1,4 @@
 import logging
-from pathlib import Path
 import json
 import pandas as pd
 from gluonts.model import evaluate_model
@@ -56,17 +55,35 @@ class Evaluator:
             ds_key = self.dataset.name.lower()
         return pretty_names.get(ds_key, ds_key)
 
-    def evaluate(self, predictor: GluonTSPredictor) -> None:
+    def evaluate(
+            self,
+            predictor: GluonTSPredictor, 
+            exit_early: bool=True,
+        ) -> None:
         """
         Evaluate a GluonTS predictor on a dataset and save results.
-
-        NOTE: Follow the conventions outlined in the GIFT-Eval repo to remain
-        compatible with their leaderboard. See here for more details:
+        
+        NOTE: For the `evaluate_model` call, follow the conventions outlined in 
+        the GIFT-Eval repo to remain compatible with their leaderboard. See 
+        here for more details:
         https://github.com/SalesforceAIResearch/gift-eval?tab=readme-ov-file#evaluation
 
         Args:
             predictor (GluonTSPredictor): The predictor to evaluate.
+            exit_early (bool): Whether to skip evaluation if results already 
+                exist. Defaults to True.
         """
+        output_path = resolve_output_path(
+            alias=predictor.alias,
+            dataset_config=self.dataset.config,
+        )
+        csv_file_path = output_path / "results.csv"
+        if exit_early and csv_file_path.exists():
+            logger.warning(
+                f"Results already exist at {csv_file_path}. Skipping evaluation."
+            )
+            return
+        
         res = evaluate_model(
             predictor,
             test_data=self.dataset.test_data,
@@ -102,7 +119,7 @@ class Evaluator:
         if self.verbose:
             mase = res["MASE[0.5]"].iloc[0]
             crps = res["mean_weighted_sum_quantile_loss"].iloc[0]
-            logging.info(f"MASE: {mase:.4f}, CRPS: {crps:.4f}")
+            logger.info(f"MASE: {mase:.4f}, CRPS: {crps:.4f}")
 
         results_df = pd.DataFrame(
             results_data,
@@ -125,8 +142,6 @@ class Evaluator:
             ],
         )
         
-        output_path = resolve_output_path(alias=predictor.alias, dataset_config=self.dataset.config)
-        csv_file_path = output_path / "results.csv"
         csv_file_path.parent.mkdir(parents=True, exist_ok=True)
         if csv_file_path.exists():
             results_df = pd.concat(
@@ -136,4 +151,4 @@ class Evaluator:
         results_df.to_csv(csv_file_path, index=False)
         
         if self.verbose:
-            logging.info(f"Results saved to {csv_file_path}")
+            logger.info(f"Results saved to {csv_file_path}")
