@@ -1,0 +1,8 @@
+- name: car_parts_with_missing
+  term: short
+- name: hierarchical_sales/D
+  term: short
+- name: hierarchical_sales/W
+  term: short
+- name: restaurant
+  term: short

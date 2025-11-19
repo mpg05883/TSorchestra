@@ -1,0 +1,10 @@
+- name: covid_deaths
+  term: short
+- name: hospital
+  term: short
+- name: us_births/D
+  term: short
+- name: us_births/M
+  term: short
+- name: us_births/W
+  term: short

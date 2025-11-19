@@ -1,11 +1,12 @@
 defaults:
+  - seed: seed_42
   - logging: info
-  - model@models.0: timesfm
-  - model@models.1: chronos
-  - model@models.2: flowstate
+  - model@models.0: moirai
+  - model@models.1: sundial
+  - model@models.2: toto
   - ensemble: slsqp
   - imputation: dummy_value
-  - data: dataset # List of dataset name-term pairs 
+  - data: all # List of dataset name-term pairs
   - _self_
 
 # Redirect hydra output
@@ -13,19 +14,14 @@ hydra:
   run:
     dir: ./output/hydra
 
-# Seed for reproducibility
-seed: 42
-workers: true
-verbose: true
-
 # Batch size to use for model forward passes
 model_batch_size: 64
 
-# Metric to optimize when computing ensemble weights during cross-validation
-metric: mae
-
 # Batch size to use when processing datasets
 data_batch_size: 1024
+
+# Metric to optimize when computing ensemble weights during cross-validation
+metric: mae
 
 # Number of cross-validation windows to use when computing ensemble weights
 n_windows: 1

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import random
 import warnings
 from collections.abc import Callable
 from dataclasses import dataclass
@@ -14,6 +15,7 @@ from tabulate import tabulate
 
 from src.models.common.forecaster import Forecaster, QuantileConverter
 from src.models.common.timecopilot_forecaster import TimeCopilotForecaster
+
 from .metrics import (
     crps_fn,
     mae_fn,
@@ -22,7 +24,7 @@ from .metrics import (
     smape_fn,
 )
 
-MetricName = Literal["mse", "mae", "smape", "crps", "mase"]
+MetricName = Literal["mse", "mae", "smape", "crps", "mase", "random"]
 
 
 METRICS: dict[MetricName, Callable[[np.ndarray, np.ndarray], float]] = {
@@ -79,21 +81,25 @@ class SLSQPEnsemble(Forecaster):
         self,
         models: list[Forecaster],
         metric: MetricName = "mse",
-        batch_size: int = 128,
         n_windows: int = 1,
         verbose: bool = True,
     ) -> None:
         self.tcf = TimeCopilotForecaster(models=models, fallback_model=None)
         self.opt_result_: SLSQPOptimizationResult | None = None
-        self.batch_size = batch_size
         self.metric = metric
         self.n_windows = n_windows
         self.alias = self.format_alias()
         self.weights_df = pd.DataFrame(columns=self.model_aliases)
-        
+
+        self.metric_fn = (
+            METRICS[metric]
+            if metric != "random"
+            else random.choice(list(METRICS.values()))
+        )
+
         if verbose:
             logging.info(
-                f"[{self.__class__.__name__}] Initializing SLSQPEnsemble with "
+                f"[{self.__class__.__name__}] Initializing ensemble with "
                 f"{len(models)} models ({', '.join(self.model_aliases)}), "
                 f"metric={self.metric}, "
                 f"n_windows={self.n_windows}"
@@ -130,11 +136,9 @@ class SLSQPEnsemble(Forecaster):
         if init is None:
             init = np.full(n_models, 1.0 / n_models)
 
-        metric_fn = METRICS[metric]
-
         def objective(w: np.ndarray) -> float:
             yhat = model_matrix @ w
-            return metric_fn(y, yhat)
+            return self.metric_fn(y, yhat)
 
         constraints = ({"type": "eq", "fun": lambda w: np.sum(w) - 1.0},)
         bounds = [(0.0, 1.0)] * n_models
@@ -156,7 +160,7 @@ class SLSQPEnsemble(Forecaster):
                     stacklevel=2,
                 )
                 w = np.full(n_models, 1.0 / n_models)
-                mv = metric_fn(y, model_matrix @ w)
+                mv = self.metric_fn(y, model_matrix @ w)
                 return SLSQPOptimizationResult(
                     weights=w.tolist(),
                     metric=metric,
@@ -166,7 +170,7 @@ class SLSQPEnsemble(Forecaster):
                     scipy_result=res,
                 )
             w = res.x
-            mv = metric_fn(y, model_matrix @ w)
+            mv = self.metric_fn(y, model_matrix @ w)
             return SLSQPOptimizationResult(
                 weights=w.tolist(),
                 metric=metric,
@@ -183,7 +187,7 @@ class SLSQPEnsemble(Forecaster):
                 stacklevel=2,
             )
             w = np.full(n_models, 1.0 / n_models)
-            mv = metric_fn(y, model_matrix @ w)
+            mv = self.metric_fn(y, model_matrix @ w)
             return SLSQPOptimizationResult(
                 weights=w.tolist(),
                 metric=metric,
@@ -230,13 +234,11 @@ class SLSQPEnsemble(Forecaster):
         if init is None:
             init = np.full(n_models, 1.0 / n_models)
 
-        metric_fn = METRICS[metric]
-
         def objective(w: np.ndarray) -> float:
             # Compute weighted ensemble quantile predictions.
             # shape: (n_samples, n_quantiles)
             yhat_quantiles = np.einsum("ijk,j->ik", quantile_matrix, w)
-            return metric_fn(y, yhat_quantiles)
+            return self.metric_fn(y, yhat_quantiles)
 
         constraints = ({"type": "eq", "fun": lambda w: np.sum(w) - 1.0},)
         bounds = [(0.0, 1.0)] * n_models
@@ -258,7 +260,7 @@ class SLSQPEnsemble(Forecaster):
             )
             w = np.full(n_models, 1.0 / n_models)
             yhat_quantiles = np.einsum("ijk,j->ik", quantile_matrix, w)
-            mv = metric_fn(y, yhat_quantiles)
+            mv = self.metric_fn(y, yhat_quantiles)
             return SLSQPOptimizationResult(
                 weights=w.tolist(),
                 metric=metric,
@@ -269,7 +271,7 @@ class SLSQPEnsemble(Forecaster):
             )
         w = res.x
         yhat_quantiles = np.einsum("ijk,j->ik", quantile_matrix, w)
-        mv = metric_fn(y, yhat_quantiles)
+        mv = self.metric_fn(y, yhat_quantiles)
         return SLSQPOptimizationResult(
             weights=w.tolist(),
             metric=metric,
@@ -293,7 +295,7 @@ class SLSQPEnsemble(Forecaster):
         verbose: bool = False,
     ) -> pd.DataFrame:
         qc = QuantileConverter(level=level, quantiles=quantiles)
-        
+
         kwargs = {
             "attr": "cross_validation",
             "merge_on": ["unique_id", "ds", "cutoff"],
@@ -306,9 +308,9 @@ class SLSQPEnsemble(Forecaster):
             "step_size": opt_step_size,
         }
         cv_df = self.tcf._call_models(**kwargs)
-        
+
         print(f"DEBUG: CV dataframe shape: {cv_df.shape}")
-        
+
         model_cols = [m.alias for m in self.tcf.models]
 
         # Use Toto's median forecasts
@@ -320,9 +322,7 @@ class SLSQPEnsemble(Forecaster):
         # Ensure all base models have cross-validation forecasts
         missing = [c for c in model_cols if c not in cv_df]
         if missing:
-            raise RuntimeError(
-                "Missing model columns in CV dataframe: " f"{missing}."
-            )
+            raise RuntimeError("Missing model columns in CV dataframe: " f"{missing}.")
 
         # Get the ground truth values
         y = cv_df["y"].to_numpy(dtype=float)
@@ -363,9 +363,7 @@ class SLSQPEnsemble(Forecaster):
             X_clean = X_quantiles[mask]
 
             if y_clean.size == 0:
-                raise RuntimeError(
-                    "No valid rows available for weight optimization."
-                )
+                raise RuntimeError("No valid rows available for weight optimization.")
 
             # Optimize weights for quantile predictions
             opt_res = self._optimize_weights_quantile(
@@ -400,9 +398,7 @@ class SLSQPEnsemble(Forecaster):
             y_clean = y[mask]
             X_clean = X[mask]
             if y_clean.size == 0:
-                raise RuntimeError(
-                    "No valid rows available for weight optimization."
-                )
+                raise RuntimeError("No valid rows available for weight optimization.")
 
             print(
                 f"DEBUG: MASE optimization - y_clean.shape: "
@@ -420,9 +416,7 @@ class SLSQPEnsemble(Forecaster):
             X_clean = X[mask]  # Predictions
 
             if y_clean.size == 0:
-                raise RuntimeError(
-                    "No valid rows available for weight optimization."
-                )
+                raise RuntimeError("No valid rows available for weight optimization.")
             opt_res = self._optimize_weights(y_clean, X_clean, self.metric)
 
             weights = opt_res.weights

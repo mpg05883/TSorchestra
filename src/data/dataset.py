@@ -1,4 +1,5 @@
 import json
+import logging
 import math
 from functools import cached_property
 from typing import Literal
@@ -33,7 +34,7 @@ class Dataset:
         self,
         name: str,
         term: Term | Literal["short", "medium", "long"] = Term.SHORT,
-        verbose: bool = False,
+        verbose: bool = True,
         storage_env_var: str = "GIFT_EVAL",
         **kwargs,
     ):
@@ -50,7 +51,7 @@ class Dataset:
             term (Term | str): Forecast horizon term. Used to optionally scale
                 the dataset's original prediction length.
             verbose (bool): Whether to display a progress bar when loading the
-                dataset from disk. Defaults to False.
+                dataset from disk. Defaults to True.
             storage_env_var (str): Environment variable pointing to the stored
                 datasets' root directory.
             **kwargs: Additional keyword arguments, if any.
@@ -58,9 +59,10 @@ class Dataset:
         self.name = name
         self.term = Term(term)
         self.storage_env_var = storage_env_var
+        disable_progress_bar()  # Always disable progress bar
 
-        if not verbose:
-            disable_progress_bar()
+        if verbose:
+            logging.info(f"Loading dataset: {self.name} ({self.term}-term)")
 
         # Set format to numpy before creating gluonts dataset
         self.hf_dataset.set_format("numpy")
@@ -194,7 +196,7 @@ class Dataset:
     @cached_property
     def prediction_length(self) -> int:
         """
-        Returns the number of future time steps to predict for each series 
+        Returns the number of future time steps to predict for each series
         based on the dataset's frequency, name, and term.
         """
         pred_len = (
@@ -211,12 +213,12 @@ class Dataset:
         """
         if "m4" in self.name:
             return 1
-        
+
         test_split = 0.1
         num_windows = math.ceil(
             test_split * self._min_series_length / self.prediction_length
         )
-        
+
         max_windows = 20
         return min(max(1, num_windows), max_windows)
 

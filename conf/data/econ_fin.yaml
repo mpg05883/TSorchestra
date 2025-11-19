@@ -1,0 +1,12 @@
+- name: m4_daily
+  term: short
+- name: m4_hourly
+  term: short
+- name: m4_monthly
+  term: short
+- name: m4_quarterly
+  term: short
+- name: m4_weekly
+  term: short
+- name: m4_yearly
+  term: short
