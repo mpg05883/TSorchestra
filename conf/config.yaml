@@ -25,3 +25,9 @@ metric: mae
 
 # Number of cross-validation windows to use when computing ensemble weights
 n_windows: 1
+
+# Whether to run the evaluation on a single dataset or loop over multiple datasets
+run_mode: sbatch
+
+# Index to start on in list of datasets if run_mode != sbatch
+start_index: 0

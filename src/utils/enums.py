@@ -75,3 +75,16 @@ class Domain(StrEnum):
     WEB_CLOUDOPS = "Web/CloudOps"  # Only in the train-test split
     ENERGY = "Energy"
     ALL = "All"
+
+
+class RunMode(StrEnum):
+    """
+    Represents the mode of running the evaluation.
+
+    Attributes:
+        SBATCH: Run the evaluation using sbatch.
+        INTERACTIVE: Run the evaluation interactively.
+    """
+
+    SBATCH = "sbatch"
+    INTERACTIVE = "interactive"
