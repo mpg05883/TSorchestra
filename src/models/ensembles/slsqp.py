@@ -80,7 +80,7 @@ class SLSQPEnsemble(Forecaster):
     def __init__(
         self,
         models: list[Forecaster],
-        metric: MetricName = "mse",
+        metric: MetricName,
         n_windows: int = 1,
         verbose: bool = True,
     ) -> None:
@@ -90,19 +90,19 @@ class SLSQPEnsemble(Forecaster):
         self.n_windows = n_windows
         self.alias = self.format_alias()
         self.weights_df = pd.DataFrame(columns=self.model_aliases)
-
-        self.metric_fn = (
-            METRICS[metric]
-            if metric != "random"
-            else random.choice(list(METRICS.values()))
-        )
-
+        
+         # Use an isolated random generator so global seed is untouched
+        rng = random.Random() 
+        chosen_metric = metric if metric != "random" else rng.choice(list(METRICS.keys()))
+        self.metric_fn = METRICS[chosen_metric]
+        
         if verbose:
+            models_str = f"{len(models)} models ({', '.join(self.model_aliases)})"
+            metric_str = f"metric={self.metric}" if metric != "random" else f"metric={self.metric} ({chosen_metric})"
+            n_windows_str = f"n_windows={self.n_windows}"
             logging.info(
                 f"[{self.__class__.__name__}] Initializing ensemble with "
-                f"{len(models)} models ({', '.join(self.model_aliases)}), "
-                f"metric={self.metric}, "
-                f"n_windows={self.n_windows}"
+                f"{models_str}, {metric_str}, {n_windows_str}"
             )
 
     def format_alias(self) -> str:
@@ -439,7 +439,7 @@ class SLSQPEnsemble(Forecaster):
             columns=self.model_aliases,
         )
 
-        self.weights_df = pd.concat(
+        self.weights_df = new_weights_df if self.weights_df.empty else pd.concat(
             [self.weights_df, new_weights_df],
             ignore_index=True,
         )

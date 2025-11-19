@@ -1,5 +1,4 @@
 _target_: src.models.ensembles.slsqp.SLSQPEnsemble
 models: []
 metric: mse
-batch_size: 128
 n_windows: 1

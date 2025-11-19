@@ -28,9 +28,11 @@ SLURM_ARRAY_TASK_ID=${SLURM_ARRAY_TASK_ID:-$DEFAULT_TASK_ID}
 export SLURM_ARRAY_TASK_ID
 
 # Define run configs
+logging="info"
 metric="random"
 
 if python -m pipeline.eval -cp ../conf \
+    logging="${logging}" \
     model@models.0=moirai \
     model@models.1=sundial \
     model@models.2=toto \

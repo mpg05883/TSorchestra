@@ -134,3 +134,6 @@ class Evaluator:
                 ignore_index=True,
             )
         results_df.to_csv(csv_file_path, index=False)
+        
+        if self.verbose:
+            logging.info(f"Results saved to {csv_file_path}")

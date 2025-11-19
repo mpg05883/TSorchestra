@@ -31,7 +31,7 @@ if python -m pipeline.eval -cp ../conf \
     model@models.0=moirai \
     model@models.1=sundial \
     model@models.2=toto \
-    model@models.3=chronos; then
+    +model@models.3=chronos; then
 
     log_info "Successfully finished $(get_slurm_message)!"
     log_error "No errors!"
