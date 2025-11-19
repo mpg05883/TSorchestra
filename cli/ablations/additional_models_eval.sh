@@ -37,8 +37,9 @@ if python -m pipeline.eval -cp ../conf \
     model@models.0=moirai \
     model@models.1=sundial \
     model@models.2=toto \
-    +model@models.3=timesfm \
-    +model@models.4=chronos \
+    +model@models.3=chronos \
+    +model@models.4=flowstate \
+    +model@models.5=timesfm \
     run_mode="${run_mode}" \
     start_idx="${start_idx}"; then
 
