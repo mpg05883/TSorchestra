@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=model_choice_eval
-#SBATCH --array=0-96
+#SBATCH --array=0-14
 #SBATCH --partition=gpuA100x4     
 #SBATCH --mem=200G     
 #SBATCH --nodes=1
@@ -9,8 +9,8 @@
 #SBATCH --constraint="scratch"
 #SBATCH --gpus-per-node=1
 #SBATCH --gpu-bind=closest
-#SBATCH --account=bdem-delta-gpu
-#SBATCH --time=24:00:00
+#SBATCH --account=beei-delta-gpu
+#SBATCH --time=1:00:00
 #SBATCH --output=output/logs/%x/out/%A/%a.out
 #SBATCH --error=output/logs/%x/err/%A/%a.err
 #SBATCH --mail-user=mpgee@usc.edu
@@ -27,10 +27,19 @@ DEFAULT_TASK_ID=$ETT1_D_TASK_ID
 SLURM_ARRAY_TASK_ID=${SLURM_ARRAY_TASK_ID:-$DEFAULT_TASK_ID}
 export SLURM_ARRAY_TASK_ID
 
+# Define run configs
+data="transport"
+# run_mode="int"
+run_mode="sbatch"
+start_idx=0
+
 if python -m pipeline.eval -cp ../conf \
     model@models.0=timesfm \
     model@models.1=chronos \
-    model@models.2=flowstate; then
+    model@models.2=flowstate \
+    data="${data}" \
+    run_mode="${run_mode}" \
+    start_idx="${start_idx}"; then
 
     log_info "Successfully finished $(get_slurm_message)!"
     log_error "No errors!"

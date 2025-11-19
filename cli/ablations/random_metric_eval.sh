@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=random_metric_eval
-#SBATCH --array=0-55
+#SBATCH --array=0-3  # ! Change array range based on number of datasets
 #SBATCH --partition=gpuA100x4     
 #SBATCH --mem=200G     
 #SBATCH --nodes=1
@@ -10,7 +10,7 @@
 #SBATCH --gpus-per-node=1
 #SBATCH --gpu-bind=closest
 #SBATCH --account=bcqc-delta-gpu
-#SBATCH --time=24:00:00
+#SBATCH --time=1:00:00
 #SBATCH --output=output/logs/%x/out/%A/%a.out
 #SBATCH --error=output/logs/%x/err/%A/%a.err
 #SBATCH --mail-user=mpgee@usc.edu
@@ -29,8 +29,10 @@ export SLURM_ARRAY_TASK_ID
 
 # Define run configs
 logging="info"
-data="short"
+data="sales"
 metric="random"
+# run_mode="int"
+start_idx=0
 
 if python -m pipeline.eval -cp ../conf \
     logging="${logging}" \
@@ -38,7 +40,9 @@ if python -m pipeline.eval -cp ../conf \
     model@models.0=moirai \
     model@models.1=sundial \
     model@models.2=toto \
-    metric="${metric}"; then
+    metric="${metric}" \
+    run_mode="${run_mode}" \
+    start_idx="${start_idx}"; then
 
     log_info "Successfully finished $(get_slurm_message)!"
     log_error "No errors!"
