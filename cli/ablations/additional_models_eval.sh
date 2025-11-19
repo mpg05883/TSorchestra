@@ -1,6 +1,6 @@
 #!/bin/bash
-#SBATCH --job-name=chronos_additional_models_eval  # ! Change job name as you add more models
-#SBATCH --array=0-54%3  # ! Change array range based on number of datasets
+#SBATCH --job-name=timesfm_flowstate_additional_models_eval  
+#SBATCH --array=0-54%3  
 #SBATCH --partition=gpuA100x4     
 #SBATCH --mem=100G     
 #SBATCH --nodes=1
@@ -28,8 +28,8 @@ SLURM_ARRAY_TASK_ID=${SLURM_ARRAY_TASK_ID:-$DEFAULT_TASK_ID}
 export SLURM_ARRAY_TASK_ID
 
 # Define run configs
-data="healthcare"
-run_mode="i"
+data="all"
+run_mode="sbatch"
 start_idx=0
 
 if python -m pipeline.eval -cp ../conf \
@@ -37,9 +37,8 @@ if python -m pipeline.eval -cp ../conf \
     model@models.0=moirai \
     model@models.1=sundial \
     model@models.2=toto \
-    +model@models.3=chronos \
+    +model@models.3=timesfm \
     +model@models.4=flowstate \
-    +model@models.5=timesfm \
     run_mode="${run_mode}" \
     start_idx="${start_idx}"; then
 
