@@ -10,7 +10,7 @@
 #SBATCH --gpus-per-node=1
 #SBATCH --gpu-bind=closest
 #SBATCH --account=beei-delta-gpu
-#SBATCH --time=2:00:00
+#SBATCH --time=4:00:00
 #SBATCH --output=output/logs/%x/out/%A/%a.out
 #SBATCH --error=output/logs/%x/err/%A/%a.err
 #SBATCH --mail-user=mpgee@usc.edu
