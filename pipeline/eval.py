@@ -22,7 +22,7 @@ def main(cfg: DictConfig) -> None:
     logging.debug(f"Config:\n{OmegaConf.to_yaml(cfg)}")
     
     # Determine dataset(s) to evaluate based on run mode
-    if cfg.run_mode == RunMode.SBATCH:
+    if cfg.run_mode.lower() == RunMode.SBATCH:
         task_id = int(os.environ.get("SLURM_ARRAY_TASK_ID")) % len(cfg.data)
         start_idx, end_idx = task_id, task_id + 1
     else:

@@ -9,7 +9,7 @@
 #SBATCH --constraint="scratch"
 #SBATCH --gpus-per-node=1
 #SBATCH --gpu-bind=closest
-#SBATCH --account=bdem-delta-gpu
+#SBATCH --account=bcqc-delta-gpu
 #SBATCH --time=24:00:00
 #SBATCH --output=output/logs/%x/out/%A/%a.out
 #SBATCH --error=output/logs/%x/err/%A/%a.err
@@ -29,10 +29,12 @@ export SLURM_ARRAY_TASK_ID
 
 # Define run configs
 logging="info"
+data="short"
 metric="random"
 
 if python -m pipeline.eval -cp ../conf \
     logging="${logging}" \
+    data="${data}" \
     model@models.0=moirai \
     model@models.1=sundial \
     model@models.2=toto \

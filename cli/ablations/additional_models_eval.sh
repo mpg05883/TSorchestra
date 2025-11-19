@@ -27,11 +27,18 @@ DEFAULT_TASK_ID=$ETT1_D_TASK_ID
 SLURM_ARRAY_TASK_ID=${SLURM_ARRAY_TASK_ID:-$DEFAULT_TASK_ID}
 export SLURM_ARRAY_TASK_ID
 
+# Define run configs
+data="short"
+run_mode="interactive"
+start_idx=0
+
 if python -m pipeline.eval -cp ../conf \
+    data="${data}" \
     model@models.0=moirai \
     model@models.1=sundial \
     model@models.2=toto \
-    +model@models.3=chronos; then
+    +model@models.3=chronos
+    +model@models.4=timesfm; then
 
     log_info "Successfully finished $(get_slurm_message)!"
     log_error "No errors!"
