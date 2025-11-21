@@ -5,7 +5,7 @@ defaults:
   - model@models.1: sundial
   - model@models.2: toto
   - ensemble: slsqp
-  - imputation: dummy_value
+  - imputation: last_value
   - data: all # List of dataset name-term pairs
   - _self_
 
@@ -14,11 +14,17 @@ hydra:
   run:
     dir: ./output/hydra
 
+# Whether to run the evaluation on a single dataset or loop over multiple datasets
+run_mode: sbatch
+
+# Index to start on in list of datasets if run_mode != sbatch
+start_idx: 0
+
+# Index to end beforein list of datasets if run_mode != sbatch
+end_idx: null
+
 # Batch size to use for model forward passes
 model_batch_size: 64
-
-# Batch size to use when processing datasets
-data_batch_size: 1024
 
 # Metric to optimize when computing ensemble weights during cross-validation
 metric: mae
@@ -26,11 +32,10 @@ metric: mae
 # Number of cross-validation windows to use when computing ensemble weights
 n_windows: 1
 
+# Batch size to use when processing datasets
+data_batch_size: 1024
+
 # Whether to skip datasets that have already been evaluated for the given configuration
-exit_early: true
+skip_existing: true
 
-# Whether to run the evaluation on a single dataset or loop over multiple datasets
-run_mode: sbatch
 
-# Index to start on in list of datasets if run_mode != sbatch
-start_idx: 0

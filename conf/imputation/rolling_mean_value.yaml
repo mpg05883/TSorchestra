@@ -1,1 +1,2 @@
 _target_: gluonts.transform.feature.RollingMeanValueImputation
+window_size: 10

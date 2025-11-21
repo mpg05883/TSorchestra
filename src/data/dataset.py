@@ -48,8 +48,9 @@ class Dataset:
 
         Args:
             name (str): Name of the dataset to load.
-            term (Term | str): Forecast horizon term. Used to optionally scale
-                the dataset's original prediction length.
+            term (Term | Literal["short", "medium", "long"]): Forecast horizon 
+                term. Used to optionally scale the dataset's original 
+                prediction length. Defaults to Term.SHORT.
             verbose (bool): Whether to display a progress bar when loading the
                 dataset from disk. Defaults to True.
             storage_env_var (str): Environment variable pointing to the stored

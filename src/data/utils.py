@@ -1,4 +1,5 @@
 from collections.abc import Iterable, Iterator
+from typing import Literal
 
 from gluonts.dataset import DataEntry
 from gluonts.dataset.field_names import FieldName
@@ -16,6 +17,7 @@ from gluonts.ev.metrics import (
     MeanWeightedSumQuantileLoss,
 )
 from gluonts.transform import Transformation
+from src.utils.enums import Term
 
 QUANTILE_LEVELS = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
 
@@ -71,31 +73,6 @@ TFB_PRED_LENGTH_MAP = {
     "A": 6,  # Annualy/yearly
 }
 
-
-def itemize_start(data_entry: DataEntry) -> DataEntry:
-    """
-    Converts the `start` field into a native Python type.
-    """
-    data_entry[FieldName.START] = data_entry[FieldName.START].item()
-    return data_entry
-
-
-def get_metrics() -> list[BaseMetricDefinition]:
-    return [
-        MSE(forecast_type="mean"),
-        MSE(forecast_type=0.5),
-        MAE(),
-        MASE(),
-        MAPE(),
-        SMAPE(),
-        MSIS(),
-        RMSE(),
-        NRMSE(),
-        ND(),
-        MeanWeightedSumQuantileLoss(quantile_levels=QUANTILE_LEVELS),
-    ]
-
-
 class MultivariateToUnivariate(Transformation):
     """
     Unpacks a single `D` dimensional multivariate time series into `D`
@@ -137,3 +114,28 @@ class MultivariateToUnivariate(Transformation):
                 univariate_entry[self.field] = univariate_target
                 univariate_entry[FieldName.ITEM_ID] = f"{item_id}_dim{id}"
                 yield univariate_entry
+
+def itemize_start(data_entry: DataEntry) -> DataEntry:
+    """
+    Converts the `start` field into a native Python type.
+    """
+    data_entry[FieldName.START] = data_entry[FieldName.START].item()
+    return data_entry
+
+def get_metrics() -> list[BaseMetricDefinition]:
+    return [
+        MSE(forecast_type="mean"),
+        MSE(forecast_type=0.5),
+        MAE(),
+        MASE(),
+        MAPE(),
+        SMAPE(),
+        MSIS(),
+        RMSE(),
+        NRMSE(),
+        ND(),
+        MeanWeightedSumQuantileLoss(quantile_levels=QUANTILE_LEVELS),
+    ]
+    
+
+

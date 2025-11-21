@@ -22,12 +22,10 @@ def main(cfg: DictConfig) -> None:
     logging.debug(f"Config:\n{OmegaConf.to_yaml(cfg)}")
     
     # Determine dataset(s) to evaluate based on run mode
-    if cfg.run_mode.lower() == RunMode.SBATCH:
-        task_id = int(os.environ.get("SLURM_ARRAY_TASK_ID")) % len(cfg.data)
-        start_idx, end_idx = task_id, task_id + 1
-    else:
-        start_idx, end_idx = cfg.start_idx, None
-
+    task_id = int(os.environ.get("SLURM_ARRAY_TASK_ID", "0")) % len(cfg.data)
+    sbatch_mode = cfg.run_mode == RunMode.SBATCH
+    start_idx = task_id if sbatch_mode else cfg.start_idx
+    end_idx = task_id + 1 if sbatch_mode else cfg.end_idx
     datasets = cfg.data[start_idx:end_idx]
 
     kwargs = {
@@ -38,7 +36,7 @@ def main(cfg: DictConfig) -> None:
     }
 
     for data in tqdm(datasets, **kwargs):        
-        rank_zero_info(f"\n{'-' * 200}")
+        rank_zero_info(f"\n{'-' * 160}")
         
         # Load models
         models = [
@@ -55,15 +53,18 @@ def main(cfg: DictConfig) -> None:
         )
 
         # Wrap ensemble forecaster with predictor for evaluation
-        predictor = GluonTSPredictor(forecaster)
+        predictor = GluonTSPredictor(
+            forecaster=forecaster,
+            imputation_method=instantiate(cfg.imputation),
+            batch_size=cfg.data_batch_size,
+        )
 
         # Load dataset
-        dataset_name, term = data.name, data.term
-        dataset = Dataset(dataset_name, term)
+        dataset = Dataset(data.name, data.term)
 
         # Evaluate ensemble and save results
-        evaluator = Evaluator(dataset)
-        evaluator.evaluate(predictor, exit_early=cfg.exit_early)
+        evaluator = Evaluator(dataset, skip_existing=cfg.skip_existing)
+        evaluator.evaluate(predictor)
 
         # Print ensemble weights for each cross-validation window
         forecaster.print_weights()

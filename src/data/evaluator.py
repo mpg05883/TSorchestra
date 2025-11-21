@@ -21,6 +21,7 @@ class Evaluator:
         dataset: Dataset,
         batch_size: int=512,
         verbose: bool = True,
+        skip_existing: bool = True,
     ) -> None:
         """
         Initialize an Evaluator instance for a specific dataset.
@@ -29,10 +30,13 @@ class Evaluator:
             dataset (Dataset): The dataset to evaluate on.
             batch_size (int): The batch size to use for evaluation.
             verbose (bool): Whether to print progress information.
+            skip_existing (bool): Whether to skip evaluation if results 
+                already exist. Defaults to True.
         """
         self.dataset = dataset
         self.batch_size = batch_size
         self.verbose = verbose
+        self.skip_existing = skip_existing
         
     @property
     def dataset_properties_map(self) -> dict:
@@ -58,7 +62,6 @@ class Evaluator:
     def evaluate(
             self,
             predictor: GluonTSPredictor, 
-            exit_early: bool=True,
         ) -> None:
         """
         Evaluate a GluonTS predictor on a dataset and save results.
@@ -70,17 +73,16 @@ class Evaluator:
 
         Args:
             predictor (GluonTSPredictor): The predictor to evaluate.
-            exit_early (bool): Whether to skip evaluation if results already 
-                exist. Defaults to True.
         """
         output_path = resolve_output_path(
             alias=predictor.alias,
             dataset_config=self.dataset.config,
         )
-        csv_file_path = output_path / "results.csv"
-        if exit_early and csv_file_path.exists():
+        csv_path = output_path / "results.csv"
+        
+        if self.skip_existing and csv_path.exists():
             logger.warning(
-                f"Results already exist at {csv_file_path}. Skipping evaluation."
+                f"Results already exist at {csv_path}. Skipping evaluation."
             )
             return
         
@@ -142,13 +144,15 @@ class Evaluator:
             ],
         )
         
-        csv_file_path.parent.mkdir(parents=True, exist_ok=True)
-        if csv_file_path.exists():
+        csv_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        if csv_path.exists():
             results_df = pd.concat(
-                [pd.read_csv(csv_file_path), results_df],
+                [pd.read_csv(csv_path), results_df],
                 ignore_index=True,
             )
-        results_df.to_csv(csv_file_path, index=False)
+    
+        results_df.to_csv(csv_path, index=False)
         
         if self.verbose:
-            logger.info(f"Results saved to {csv_file_path}")
+            logger.info(f"Results saved to {csv_path}")
