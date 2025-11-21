@@ -28,31 +28,21 @@ SLURM_ARRAY_TASK_ID=${SLURM_ARRAY_TASK_ID:-$DEFAULT_TASK_ID}
 export SLURM_ARRAY_TASK_ID
 
 # Define run configs
-seed="seed_42"
 logging="info"
-ensemble="slsqp"
-imputation="dummy_value"
-data="all"
-model_batch_size=64
-data_batch_size=1024
-metric="mae"
-n_windows=1
+data="sales"
+metric="random"
+exit_early=false
 run_mode="int"
-start_idx=22
+start_idx=0
 
 if python -m pipeline.eval -cp ../conf \
-    seed="${seed}" \
     logging="${logging}" \
     model@models.0=moirai \
     model@models.1=sundial \
     model@models.2=toto \
-    ensemble="${ensemble}" \
-    imputation="${imputation}" \
     data="${data}" \
-    model_batch_size="${model_batch_size}" \
-    data_batch_size="${data_batch_size}" \
     metric="${metric}" \
-    n_windows="${n_windows}" \
+    exit_early="${exit_early}" \
     run_mode="${run_mode}" \
     start_idx="${start_idx}"; then
 

@@ -63,7 +63,7 @@ def main(cfg: DictConfig) -> None:
 
         # Evaluate ensemble and save results
         evaluator = Evaluator(dataset)
-        evaluator.evaluate(predictor)
+        evaluator.evaluate(predictor, exit_early=cfg.exit_early)
 
         # Print ensemble weights for each cross-validation window
         forecaster.print_weights()
