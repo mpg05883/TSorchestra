@@ -36,6 +36,7 @@ def resolve_metadata_path() -> Path:
     src_dir = Path(__file__).resolve().parent.parent
     return src_dir / "data" / "meta" / "metadata.json"
 
+
 def resolve_dataset_properties_path() -> Path:
     """
     Resolve the directory path where GIFT-Eval dataset properties are stored.
@@ -43,6 +44,16 @@ def resolve_dataset_properties_path() -> Path:
     # Resolve path to src directory
     src_dir = Path(__file__).resolve().parent.parent
     return src_dir / "data" / "meta" / "dataset_properties.json"
+
+
+def resolve_results_path() -> Path:
+    """
+    Resolve the directory path where results are stored.
+    """
+    # Resolve path to src directory
+    root_dir = Path(__file__).resolve().parent.parent.parent
+    return root_dir / "results"
+
 
 def resolve_output_path(
     alias: str,

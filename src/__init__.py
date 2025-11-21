@@ -1,5 +1,6 @@
 from .data import Dataset, Evaluator
 from .models import (
+    GluonTSPredictor,
     Moirai,
     SLSQPEnsemble,
     Sundial,
@@ -7,9 +8,16 @@ from .models import (
     TimesFM,
     TiRex,
     Toto,
-    GluonTSPredictor,
 )
-from .utils import Domain, Term, resolve_output_path, resolve_storage_path, resolve_metadata_path, resolve_dataset_properties_path
+from .utils import (
+    Domain,
+    Term,
+    resolve_dataset_properties_path,
+    resolve_metadata_path,
+    resolve_output_path,
+    resolve_results_path,
+    resolve_storage_path,
+)
 
 __all__ = [
     "Dataset",
@@ -28,4 +36,5 @@ __all__ = [
     "resolve_storage_path",
     "resolve_metadata_path",
     "resolve_dataset_properties_path",
+    "resolve_results_path",
 ]
